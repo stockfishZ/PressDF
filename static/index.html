@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PressDF — Local PDF Compressor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Bar -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+            <rect x="3" y="17" width="18" height="4" rx="2"></rect>
+          </svg>
+        </div>
+        <span class="brand-name">PressDF</span>
+        <span class="brand-divider">/</span>
+        <span class="brand-tag">Local PDF Compressor</span>
+      </div>
+    </header>
+
+    <!-- Main Focused Content (Single-Column, max-width: 760px) -->
+    <main class="main-container">
+
+      <!-- Preset Segmented Selector & Custom Toggle -->
+      <section class="compression-header" aria-label="Compression settings">
+        <div class="presets-row">
+          <div class="preset-pill-group" role="radiogroup" aria-label="Compression Presets">
+            <button type="button" class="preset-pill" data-preset="extreme" title="Maximum compression (96 DPI, 50% JPEG quality)">
+              <span>Maximum</span>
+            </button>
+            <button type="button" class="preset-pill active" data-preset="balanced" title="Recommended balance between file size and visual fidelity">
+              <span>Balanced</span>
+              <span class="pill-badge">Default</span>
+            </button>
+            <button type="button" class="preset-pill" data-preset="high_quality" title="High quality print and presentation (250 DPI, 88% JPEG quality)">
+              <span>High Quality</span>
+            </button>
+            <button type="button" class="preset-pill" data-preset="lossless" title="Lossless PDF stream optimization and font subsetting without modifying images">
+              <span>Lossless</span>
+            </button>
+          </div>
+
+          <button type="button" class="custom-toggle-btn" id="customToggleBtn" aria-expanded="false" title="Expand custom compression parameters">
+            <svg class="gear-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>Custom options</span>
+            <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Collapsible Custom Options Drawer -->
+        <div class="custom-panel" id="customPanel" hidden>
+          <div class="custom-panel-inner">
+            <div class="custom-row">
+              <div class="custom-field">
+                <div class="field-header">
+                  <label for="sliderQuality" class="field-label">JPEG Quality</label>
+                  <span class="mono field-val" id="qualityReadout">75%</span>
+                </div>
+                <input type="range" id="sliderQuality" class="range-slider" min="10" max="95" step="1" value="75" />
+              </div>
+
+              <div class="custom-field">
+                <div class="field-header">
+                  <span class="field-label">Target Max DPI</span>
+                  <span class="mono field-val" id="dpiReadout">150 DPI</span>
+                </div>
+                <div class="dpi-pills-row" id="dpiPills">
+                  <button type="button" class="dpi-pill mono" data-dpi="72">72</button>
+                  <button type="button" class="dpi-pill mono" data-dpi="96">96</button>
+                  <button type="button" class="dpi-pill mono" data-dpi="120">120</button>
+                  <button type="button" class="dpi-pill mono active" data-dpi="150">150</button>
+                  <button type="button" class="dpi-pill mono" data-dpi="250">250</button>
+                  <button type="button" class="dpi-pill mono" data-dpi="300">300</button>
+                  <button type="button" class="dpi-pill mono" data-dpi="0">Orig</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="custom-toggles-row">
+              <label class="toggle-control" title="Downsample and recompress raster images inside the PDF">
+                <input type="checkbox" id="toggleRecompressImages" checked />
+                <span class="toggle-indicator"></span>
+                <span>Recompress images</span>
+              </label>
+
+              <label class="toggle-control" title="Convert colour images to 8-bit grayscale">
+                <input type="checkbox" id="toggleGrayscale" />
+                <span class="toggle-indicator"></span>
+                <span>Grayscale images</span>
+              </label>
+
+              <label class="toggle-control" title="Eliminate duplicate objects and apply flate stream compression">
+                <input type="checkbox" id="toggleLosslessOptimize" checked />
+                <span class="toggle-indicator"></span>
+                <span>Deflate &amp; Deduplicate</span>
+              </label>
+
+              <label class="toggle-control" title="Prune unused glyphs from embedded fonts">
+                <input type="checkbox" id="toggleSubsetFonts" checked />
+                <span class="toggle-indicator"></span>
+                <span>Subset fonts</span>
+              </label>
+
+              <label class="toggle-control" title="Remove XML packets and editing metadata">
+                <input type="checkbox" id="toggleStripMetadata" checked />
+                <span class="toggle-indicator"></span>
+                <span>Strip metadata</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dropzone -->
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Drop PDF files here or click to browse">
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" multiple hidden />
+        <div class="dropzone-box">
+          <div class="dropzone-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <path d="M12 18v-6"></path>
+              <path d="m9 15 3 3 3-3"></path>
+            </svg>
+          </div>
+          <div class="dropzone-heading">
+            Drop PDF files here, or <span class="browse-link">browse</span>
+          </div>
+          <div class="dropzone-sub">
+            Files are processed 100% offline on your device
+          </div>
+        </div>
+      </div>
+
+      <!-- File Cards List -->
+      <section class="file-list" id="fileList" aria-label="Processed files list"></section>
+
+      <!-- Bottom Action Bar (Appears when files are in the queue) -->
+      <div class="bottom-bar hidden" id="bottomBar">
+        <div class="bottom-bar-summary">
+          <span class="summary-stat mono" id="summaryStat">0 files · 0 B saved</span>
+          <span class="settings-dirty-pill hidden" id="settingsDirtyPill">Settings changed</span>
+        </div>
+        <div class="bottom-bar-actions">
+          <button type="button" class="btn btn-secondary btn-sm hidden" id="recompressAllBtn" title="Re-compress queue with updated parameters">
+            Re-compress
+          </button>
+          <button type="button" class="btn btn-primary btn-sm hidden" id="downloadZipBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span id="downloadZipLabel">Download All (.ZIP)</span>
+          </button>
+          <button type="button" class="btn btn-ghost btn-sm" id="clearQueueBtn">
+            Clear
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Interactive Quality Inspector Modal (Side-by-side Proofing) -->
+  <div class="modal-backdrop hidden" id="inspectorModal" role="dialog" aria-modal="true" aria-labelledby="inspectorTitle">
+    <div class="modal-window">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3 class="modal-filename" id="inspectorTitle">document.pdf</h3>
+          <span class="modal-reduction-badge mono" id="inspectorTelemetryPill">4.2 MB → 580 KB (-86%)</span>
+        </div>
+
+        <div class="modal-controls">
+          <!-- Split vs Flip Mode -->
+          <div class="segmented-control" role="group" aria-label="Comparison Mode">
+            <button type="button" class="seg-btn active" data-view-mode="split" id="viewModeSplitBtn">Split</button>
+            <button type="button" class="seg-btn" data-view-mode="flip" id="viewModeFlipBtn">Flip</button>
+          </div>
+
+          <!-- Page Navigation -->
+          <div class="page-nav">
+            <button type="button" class="nav-btn" id="prevPageBtn" title="Previous Page (Left Arrow)" aria-label="Previous Page">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="page-indicator mono" id="pageIndicator">Page 1 / 1</span>
+            <button type="button" class="nav-btn" id="nextPageBtn" title="Next Page (Right Arrow)" aria-label="Next Page">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+
+          <!-- Zoom Selector -->
+          <div class="zoom-group" role="group" aria-label="Zoom Level">
+            <button type="button" class="zoom-btn mono active" data-zoom="100">100%</button>
+            <button type="button" class="zoom-btn mono" data-zoom="150">150%</button>
+            <button type="button" class="zoom-btn mono" data-zoom="200">200%</button>
+          </div>
+        </div>
+
+        <div class="modal-header-actions">
+          <button type="button" class="btn btn-primary btn-sm" id="inspectorDownloadBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Download</span>
+          </button>
+          <button type="button" class="icon-close-btn" id="closeInspectorBtn" title="Close (Esc)" aria-label="Close Inspector">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Flip Mode Bar (Only visible in Flip Mode) -->
+      <div class="flip-bar hidden" id="flipModeBanner">
+        <span class="flip-badge mono" id="flipStateLabel">VIEWING: COMPRESSED</span>
+        <button type="button" class="btn btn-secondary btn-xs" id="flipToggleBtn">
+          Hold Spacebar or Click to Toggle Original / Compressed
+        </button>
+      </div>
+
+      <!-- Viewport Comparison Canvas -->
+      <div class="inspector-stage" id="inspectorStage">
+        <!-- Pane 1: Original -->
+        <div class="inspector-pane" id="paneOriginal">
+          <div class="pane-tag-bar">
+            <span class="pane-tag">Original</span>
+            <span class="pane-size mono" id="paneOriginalSize">—</span>
+          </div>
+          <div class="pane-viewport" id="scrollOriginal">
+            <div class="preview-center">
+              <div class="loader" id="loaderOriginal">
+                <div class="spinner"></div>
+                <span>Rendering...</span>
+              </div>
+              <img id="imgOriginal" class="preview-img" alt="Original Page" draggable="false" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Pane 2: Compressed -->
+        <div class="inspector-pane" id="paneCompressed">
+          <div class="pane-tag-bar">
+            <span class="pane-tag tag-accent">Compressed</span>
+            <span class="pane-size mono accent-green" id="paneCompressedSize">—</span>
+          </div>
+          <div class="pane-viewport" id="scrollCompressed">
+            <div class="preview-center">
+              <div class="loader" id="loaderCompressed">
+                <div class="spinner"></div>
+                <span>Rendering...</span>
+              </div>
+              <img id="imgCompressed" class="preview-img" alt="Compressed Page" draggable="false" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

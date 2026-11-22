@@ -1,0 +1,29 @@
+# Python & virtual environments
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build & packaging artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Shortcuts, logs, and temporary outputs
+*.lnk
+*.log
+temp_pdf/
+tmp/
+
+# IDE & OS artifacts
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
